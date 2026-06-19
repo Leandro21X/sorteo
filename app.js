@@ -168,21 +168,25 @@ function drawWheel(angle) {
     ctx.stroke();
 
     // Texto (solo primer nombre, girado)
-    const textR = radius * 0.68;
+    const textR = radius * 0.62;
     const textX = cx + textR * Math.cos(seg.mid);
     const textY = cy + textR * Math.sin(seg.mid);
-    const fontSize = Math.max(8, Math.floor(radius * segSize * 0.32));
+    const segArcLen = radius * segSize;
+    const fontSize = Math.max(10, Math.min(14, Math.floor(segArcLen * 0.38)));
     const shortName = NAMES[i].split(' ')[0];
     const textColor = isLightColor(color) ? '#000000' : '#FFFFFF';
 
     ctx.save();
     ctx.translate(textX, textY);
-    ctx.rotate(seg.mid + Math.PI / 2);
+    ctx.rotate(seg.mid - Math.PI / 2);
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
+    ctx.shadowColor = isLightColor(color) ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.9)';
+    ctx.shadowBlur = 4;
     ctx.fillStyle = textColor;
-    ctx.font = `bold ${fontSize}px Inter, sans-serif`;
+    ctx.font = `bold ${fontSize}px Arial, sans-serif`;
     ctx.fillText(shortName, 0, 0);
+    ctx.shadowBlur = 0;
     ctx.restore();
   });
 
@@ -338,33 +342,33 @@ function showWinnerOverlay(name) {
 
 function generateQR(name) {
   const encoded = encodeURIComponent(name);
+  const BASE_URL = 'https://Leandro21X.github.io/sorteo/';
+  const url = `${BASE_URL}winner.html?name=${encoded}`;
 
-  // Detectar si estamos en servidor local o file://
-  if (location.protocol === 'file:') {
-    // Modo offline: mostrar QR con mensaje de texto (sms: o solo texto)
-    showQRPlaceholder();
-    qrUrlEl.textContent = 'Inicia el servidor para activar el QR';
-    return;
-  }
-
-  const base = location.origin + location.pathname.replace('index.html', '');
-  const url  = `${base}winner.html?name=${encoded}`;
   qrUrlEl.textContent = url;
 
-  // Limpiar canvas anterior
-  const qrEl = document.getElementById('qrCanvas');
-  qrEl.style.display = 'block';
+  // Limpiar contenedor anterior y crear div fresco para QRCode
+  const qrContainer = document.getElementById('qrContainer');
+  const oldDiv = document.getElementById('qrDiv');
+  if (oldDiv) oldDiv.remove();
+  const qrDiv = document.createElement('div');
+  qrDiv.id = 'qrDiv';
+  qrDiv.style.cssText = 'display:inline-block; background:white; padding:8px; border-radius:8px; margin: 0 auto 0.5rem;';
 
-  // Usar librería qrcode si está disponible
+  // Insertar antes del qrUrlEl
+  qrContainer.insertBefore(qrDiv, qrUrlEl);
+
   if (typeof QRCode !== 'undefined') {
-    qrEl.getContext('2d').clearRect(0, 0, qrEl.width, qrEl.height);
-    QRCode.toCanvas(qrEl, url, {
+    new QRCode(qrDiv, {
+      text: url,
       width: 180,
-      margin: 1,
-      color: { dark: '#000000', light: '#FFFFFF' }
+      height: 180,
+      colorDark: '#000000',
+      colorLight: '#FFFFFF',
+      correctLevel: QRCode.CorrectLevel.M
     });
   } else {
-    showQRPlaceholder();
+    qrDiv.innerHTML = '<p style="color:#333;font-size:0.75rem;padding:1rem;max-width:180px;">QR no disponible — abre desde GitHub Pages</p>';
   }
 }
 
@@ -420,9 +424,7 @@ function buildParticipantList() {
 }
 
 function checkServerMode() {
-  if (location.protocol === 'file:') {
-    document.getElementById('serverToast').classList.remove('hidden');
-  }
+  // GitHub Pages activo — no se necesita aviso de servidor
 }
 
 // ------------------------------------------------------------
