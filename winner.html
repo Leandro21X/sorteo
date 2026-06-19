@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>¡Ganador del Sorteo!</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Inter:wght@400;700&display=swap');
+
+    :root {
+      --gold: #FFD700;
+      --gold2: #FFA500;
+      --bg: #0a0a1a;
+      --surface: #1a1a35;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Inter', sans-serif;
+      color: white;
+      text-align: center;
+      padding: 2rem 1rem;
+      overflow: hidden;
+    }
+
+    /* Fondo animado */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 30% 40%, rgba(124,58,237,0.2) 0%, transparent 60%),
+        radial-gradient(ellipse at 70% 70%, rgba(255,215,0,0.1) 0%, transparent 50%);
+      animation: bgPulse 3s ease infinite alternate;
+      z-index: 0;
+    }
+    @keyframes bgPulse {
+      from { opacity: 0.6; }
+      to   { opacity: 1; }
+    }
+
+    .card {
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(135deg, #1a1a35, #22224a);
+      border: 1px solid rgba(255,215,0,0.3);
+      border-radius: 24px;
+      padding: 2.5rem 2rem;
+      max-width: 400px;
+      width: 100%;
+      box-shadow:
+        0 0 60px rgba(255,215,0,0.25),
+        0 20px 60px rgba(0,0,0,0.6);
+      animation: cardIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+    @keyframes cardIn {
+      from { transform: scale(0.6) translateY(40px); opacity: 0; }
+      to   { transform: scale(1) translateY(0); opacity: 1; }
+    }
+
+    .trophy {
+      font-size: 4rem;
+      animation: trophyBounce 0.8s ease infinite alternate;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    @keyframes trophyBounce {
+      from { transform: translateY(0) rotate(-5deg); }
+      to   { transform: translateY(-12px) rotate(5deg); }
+    }
+
+    .label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.25em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 10px var(--gold);
+    }
+
+    .subtitle {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 1.5rem;
+    }
+
+    .winner-name {
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.3rem, 6vw, 2rem);
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--gold), var(--gold2), #fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.3;
+      padding: 1rem 0;
+      filter: drop-shadow(0 0 12px rgba(255,215,0,0.4));
+    }
+
+    .no-name {
+      color: rgba(255,255,255,0.4);
+      font-style: italic;
+      font-size: 0.9rem;
+      padding: 1rem 0;
+    }
+
+    .divider {
+      width: 60%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,215,0,0.4), transparent);
+      margin: 1rem auto;
+    }
+
+    .footer {
+      position: relative;
+      z-index: 1;
+      margin-top: 2rem;
+      font-size: 0.7rem;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 0.1em;
+    }
+
+    /* Estrellas decorativas */
+    .stars {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle var(--dur) ease infinite alternate;
+    }
+    @keyframes twinkle {
+      from { opacity: 0.1; transform: scale(0.8); }
+      to   { opacity: 0.8; transform: scale(1.2); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="stars" id="stars"></div>
+
+  <div class="card">
+    <span class="trophy">🏆</span>
+    <p class="label">¡Felicitaciones!</p>
+    <p class="subtitle">Eres el ganador del sorteo</p>
+    <div class="divider"></div>
+    <p class="winner-name" id="winnerDisplay"></p>
+    <div class="divider"></div>
+    <p class="subtitle" style="font-size:0.8rem; margin-top:0.5rem;">
+      🎉 ¡Tu suerte estuvo de tu lado hoy! 🎉
+    </p>
+  </div>
+
+  <p class="footer">SORTEO · RULETA INTERACTIVA</p>
+
+  <script>
+    // Leer nombre de la URL
+    const params = new URLSearchParams(window.location.search);
+    const name   = params.get('name');
+    const el     = document.getElementById('winnerDisplay');
+
+    if (name && name.trim()) {
+      el.textContent = name.trim();
+    } else {
+      el.className = 'no-name';
+      el.textContent = 'No se encontró el nombre del ganador';
+    }
+
+    // Generar estrellitas decorativas
+    const starsContainer = document.getElementById('stars');
+    for (let i = 0; i < 40; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      const size = 1 + Math.random() * 2;
+      star.style.cssText = `
+        width: ${size}px; height: ${size}px;
+        top: ${Math.random() * 100}%; left: ${Math.random() * 100}%;
+        --dur: ${1.5 + Math.random() * 2.5}s;
+        animation-delay: ${Math.random() * 2}s;
+      `;
+      starsContainer.appendChild(star);
+    }
+  </script>
+</body>
+</html>

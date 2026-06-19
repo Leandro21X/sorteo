@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sorteo — Ruleta</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Partículas de fondo -->
+  <div id="particles"></div>
+
+  <!-- Header -->
+  <header id="appHeader">
+    <div class="header-glow"></div>
+    <h1 id="appTitle">🎰 SORTEO</h1>
+    <p id="appSubtitle">Gira la ruleta y descubre al ganador</p>
+  </header>
+
+  <!-- Layout principal -->
+  <main id="mainLayout">
+
+    <!-- Panel izquierdo: lista de participantes -->
+    <aside id="participantPanel">
+      <h2 class="panel-title">👥 Participantes <span id="participantCount"></span></h2>
+      <ul id="participantList"></ul>
+    </aside>
+
+    <!-- Centro: ruleta -->
+    <section id="wheelSection">
+      <div id="wheelWrapper">
+        <canvas id="rouletteCanvas" width="560" height="560"></canvas>
+        <div id="arrowIndicator">▶</div>
+      </div>
+
+      <button id="spinBtn">
+        <span class="btn-icon">🎯</span>
+        <span class="btn-text">¡GIRAR!</span>
+      </button>
+
+      <div id="resultPanel" aria-live="polite" aria-atomic="true"></div>
+    </section>
+
+    <!-- Panel derecho: historial -->
+    <aside id="historyPanel">
+      <h2 class="panel-title">🏆 Ganadores anteriores</h2>
+      <ul id="historyList">
+        <li class="history-empty">Aún no hay ganadores</li>
+      </ul>
+    </aside>
+
+  </main>
+
+  <!-- Overlay ganador -->
+  <div id="winnerOverlay" class="hidden">
+    <div id="winnerCard">
+      <div class="winner-fireworks">🎆</div>
+      <h2 class="winner-label">🏆 ¡GANADOR!</h2>
+      <p id="winnerName"></p>
+      <div id="qrContainer">
+        <p class="qr-label">Escanea para ver tu premio</p>
+        <canvas id="qrCanvas"></canvas>
+        <p id="qrUrl" class="qr-url"></p>
+      </div>
+      <button id="closeOverlay">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- Toast de instrucción servidor -->
+  <div id="serverToast" class="hidden">
+    <strong>⚠️ Para el QR necesitas iniciar el servidor:</strong><br>
+    Abre una terminal en esta carpeta y ejecuta: <code>python -m http.server 8080</code><br>
+    Luego abre <code>http://localhost:8080</code> en el navegador
+    <button id="closeToast">✕</button>
+  </div>
+
+  <script src="qrcode.min.js"></script>
+  <script src="app.js" defer></script>
+
+</body>
+</html>
